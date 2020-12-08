@@ -1,3 +1,21 @@
 .mainWindow {
   height: 100vh;
+  display: flex;
+  flex-direction: row;
+}
+
+.mainWindowMob {
+  :first-child {
+    width: 100%;
+  }
+}
+
+.mainWindowDesc {
+  :first-child {
+    width: 300px;
+  }
+
+  :last-child {
+    flex-grow: 1;
+  }
 }
