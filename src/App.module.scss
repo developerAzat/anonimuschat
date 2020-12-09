@@ -5,17 +5,17 @@
 }
 
 .mainWindowMob {
-  :first-child {
+  > :first-child {
     width: 100%;
   }
 }
 
 .mainWindowDesc {
-  :first-child {
+  > :first-child {
     width: 300px;
   }
 
-  :last-child {
+  > :last-child {
     flex-grow: 1;
   }
 }
