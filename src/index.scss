@@ -15,12 +15,12 @@ html {
 }
 
 body {
-  min-height: 100vh;
+  min-height: 100%;
   margin: 0;
-  font-family: "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100%;
 }
