@@ -7,55 +7,55 @@ import PersonIcon from '@material-ui/icons/Person';
 import styles from './ChatList.module.scss';
 
 interface user {
-  id: number;
+  id: string;
   name: string;
 }
 
 interface messageInterface {
-  messageId: number;
-  fromUserId: number;
+  messageId: string;
+  fromUserId: string;
   text: string;
   date: number;
 }
 
 interface chatInfoInterface {
-  chatId: number;
+  chatId: string;
   withUser: user;
   lastMessage: messageInterface;
 }
 
-const getChats = (userId: number): Array<chatInfoInterface> => {
+const getChats = (userId: string): Array<chatInfoInterface> => {
   return [
     {
-      chatId: 1,
-      withUser: { id: 1, name: 'anon' },
-      lastMessage: { messageId: 1, fromUserId: 1, text: 'qwe', date: 1234 },
+      chatId: '1',
+      withUser: { id: '1', name: 'anon' },
+      lastMessage: { messageId: '1', fromUserId: '1', text: 'qwe', date: 1234 },
     },
     {
-      chatId: 2,
-      withUser: { id: 2, name: 'anonqwe' },
-      lastMessage: { messageId: 2, fromUserId: 0, text: 'qwerty', date: 1234 },
+      chatId: '2',
+      withUser: { id: '2', name: 'anonqwe' },
+      lastMessage: { messageId: '2', fromUserId: '0', text: 'qwerty', date: 1234 },
     },
     {
-      chatId: 3,
-      withUser: { id: 3, name: 'anon1' },
-      lastMessage: { messageId: 3, fromUserId: 0, text: 'qwe', date: 1234 },
+      chatId: '3',
+      withUser: { id: '3', name: 'anon1' },
+      lastMessage: { messageId: '3', fromUserId: '0', text: 'qwe', date: 1234 },
     },
     {
-      chatId: 4,
-      withUser: { id: 4, name: 'anon2' },
-      lastMessage: { messageId: 4, fromUserId: 0, text: 'qwe', date: 1234 },
+      chatId: '4',
+      withUser: { id: '4', name: 'anon2' },
+      lastMessage: { messageId: '4', fromUserId: '0', text: 'qwe', date: 1234 },
     },
     {
-      chatId: 5,
-      withUser: { id: 5, name: 'anon3' },
-      lastMessage: { messageId: 5, fromUserId: 0, text: 'qwe', date: 1234 },
+      chatId: '5',
+      withUser: { id: '5', name: 'anon3' },
+      lastMessage: { messageId: '5', fromUserId: '0', text: 'qwe', date: 1234 },
     },
   ];
 };
 
 interface props {
-  userId: number;
+  userId: string;
   setSelectedChatId: Function;
 }
 

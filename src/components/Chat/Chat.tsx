@@ -8,13 +8,13 @@ import SendIcon from '@material-ui/icons/Send';
 import styles from './Chat.module.scss';
 
 interface user {
-  id: number;
+  id: string;
   name: string;
 }
 
 interface messageInterface {
-  messageId: number;
-  fromUserId: number;
+  messageId: string;
+  fromUserId: string;
   text: string;
   date: number;
 }
@@ -24,20 +24,20 @@ interface chatInterface {
   messages: Array<messageInterface>;
 }
 
-const getChat = (userId: number, chatId: number): chatInterface => {
+const getChat = (userId: string, chatId: string): chatInterface => {
   return {
-    withUser: { id: 1, name: 'testUser' },
+    withUser: { id: '1', name: 'testUser' },
     messages: [
-      { messageId: 1, fromUserId: 0, text: 'привет', date: 20000000000 },
-      { messageId: 1, fromUserId: 1, text: 'привет', date: 10000000000 },
+      { messageId: '1', fromUserId: '0', text: 'привет', date: 20000000000 },
+      { messageId: '2', fromUserId: '1', text: 'привет', date: 10000000000 },
     ],
   };
 };
 
 interface props {
   mobileMod: boolean;
-  userId: number;
-  selectedChatId: number | null;
+  userId: string;
+  selectedChatId: string | null;
   resetSelectedChatId: Function;
 }
 
