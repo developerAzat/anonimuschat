@@ -4,85 +4,85 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import Button from '@material-ui/core/Button';
 import PersonIcon from '@material-ui/icons/Person';
 
+import { firestore } from '../../firebase';
+
 import styles from './ChatList.module.scss';
-
-interface user {
-  id: string;
-  name: string;
-}
-
-interface messageInterface {
-  messageId: string;
-  fromUserId: string;
-  text: string;
-  date: number;
-}
-
-interface chatInfoInterface {
-  chatId: string;
-  withUser: user;
-  lastMessage: messageInterface;
-}
-
-const getChats = (userId: string): Array<chatInfoInterface> => {
-  return [
-    {
-      chatId: '1',
-      withUser: { id: '1', name: 'anon' },
-      lastMessage: { messageId: '1', fromUserId: '1', text: 'qwe', date: 1234 },
-    },
-    {
-      chatId: '2',
-      withUser: { id: '2', name: 'anonqwe' },
-      lastMessage: { messageId: '2', fromUserId: '0', text: 'qwerty', date: 1234 },
-    },
-    {
-      chatId: '3',
-      withUser: { id: '3', name: 'anon1' },
-      lastMessage: { messageId: '3', fromUserId: '0', text: 'qwe', date: 1234 },
-    },
-    {
-      chatId: '4',
-      withUser: { id: '4', name: 'anon2' },
-      lastMessage: { messageId: '4', fromUserId: '0', text: 'qwe', date: 1234 },
-    },
-    {
-      chatId: '5',
-      withUser: { id: '5', name: 'anon3' },
-      lastMessage: { messageId: '5', fromUserId: '0', text: 'qwe', date: 1234 },
-    },
-  ];
-};
 
 interface props {
   userId: string;
+  chatsSet: Set<string>;
   setSelectedChatId: Function;
 }
 
-function ChatList({ userId, setSelectedChatId }: props) {
-  const chatList = getChats(userId);
+function ChatList({ userId, chatsSet, setSelectedChatId }: props) {
+  const chats = Array.from(chatsSet);
+
+  const newChat = (userId: string) => () => {
+    async function createChat(userId: string) {
+      const requests = await firestore.collection('RequestToCreateChat').get();
+
+      if (!requests.empty) {
+        for (let index = 0; index < requests.docs.length; index++) {
+          const element = requests.docs[index];
+          const newChatUserId = element.data().UserId;
+
+          if (newChatUserId !== userId) {
+            const Chats = await firestore
+              .collection('Chats')
+              .where('Owners', 'array-contains-any', [userId])
+              .get();
+            let jointChat: boolean = false;
+
+            Chats.docs.forEach((Chat) => {
+              if (Chat.data().Owners.indexOf(newChatUserId) !== -1) {
+                jointChat = true;
+                console.log('Есть общий чат');
+              }
+            });
+
+            if (!jointChat) {
+              console.log('Создан новый чат');
+
+              firestore.collection('RequestToCreateChat').doc(element.id).delete();
+              firestore.collection('Chats').add({ Owners: [userId, newChatUserId] });
+              return;
+            }
+          } else {
+            console.log('Заявка уже существует');
+            return;
+          }
+        }
+        console.log('Чат не создан');
+      }
+
+      console.log('Создана новая заявка');
+
+      firestore.collection('RequestToCreateChat').add({
+        UserId: userId,
+      });
+    }
+
+    createChat(userId);
+  };
+
   return (
     <div className={styles.main}>
       <div className={styles.head}>
-        <IconButton>
+        <IconButton onClick={newChat(userId)}>
           <AddCircleIcon style={{ width: 30, height: 30 }} />
         </IconButton>
         <div>Начать новый диалог</div>
       </div>
       <div className={styles.list}>
-        {chatList.map((value) => {
+        {chats.map((chatId) => {
           return (
-            <Button key={value.chatId} onClick={() => setSelectedChatId(value.chatId)}>
+            <Button key={chatId} onClick={() => setSelectedChatId(chatId)}>
               <div className={styles.item}>
                 <div className={styles.iconWrap}>
                   <PersonIcon style={{ width: 28, height: 28 }} />
                 </div>
                 <div className={styles.text}>
-                  <div className={styles.userName}>{value.withUser.name}</div>
-                  <div className={styles.lastMessage}>
-                    {value.lastMessage.fromUserId === userId ? 'Вы: ' : ''}
-                    {value.lastMessage.text}
-                  </div>
+                  <div className={styles.chatName}>{chatId}</div>
                 </div>
               </div>
             </Button>

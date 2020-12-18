@@ -1,30 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import cn from 'classnames';
-
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
 
 import { Chat } from './components/Chat';
 import { ChatList } from './components/ChatList';
 
 import styles from './App.module.scss';
 
-firebase.initializeApp({
-  apiKey: "AIzaSyCebvmsccLVl75ci5Abr7QP1UIEvg6FyfQ",
-  authDomain: "anonimuschat-133c1.firebaseapp.com",
-  projectId: "anonimuschat-133c1",
-  storageBucket: "anonimuschat-133c1.appspot.com",
-  messagingSenderId: "923891462008",
-  appId: "1:923891462008:web:872a24174e95b0cdfbe28d"
-});
+import { auth, firestore } from './firebase';
 
-const auth = firebase.auth();
-const firestore = firebase.firestore();
+export interface messageInterface {
+  MessageID: string;
+  UserId: string;
+  Text: string;
+  Date: number;
+}
+
+export interface chatInterface {
+  Messages: Array<messageInterface>;
+  OnSnapshotUnsubscribe: Function;
+}
 
 function App() {
-  const [userId, setUserId] = useState('');
-  const [selectedChatId, setSelectedChatId] = useState(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [chatsSet, setChatsSet] = useState(new Set<string>());
+  const chatsMapRef = useRef(new Map<string, chatInterface>());
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [currrentChat, setCurrentChat] = useState<chatInterface | null>(null);
+
+  const [newMessageInChatId, setNewMessageInChatId] = useState<any>(null);
 
   const [mobileMod, setMobileMod] = useState(true);
 
@@ -44,103 +47,84 @@ function App() {
   }, []);
 
   useEffect(() => {
-    auth.signInAnonymously()
-    .then((value)=>{
-      if(value.user?.uid){
+    auth.signInAnonymously().then((value) => {
+      if (value.user?.uid) {
         setUserId(value.user.uid);
       }
     });
   }, []);
 
-  useEffect(()=>{
-    // firestore.collection('test').get()
-    // .then((value)=>{
-    //   console.log(value.docs[0].data());
-    // })
+  useEffect(() => {
+    if (userId) {
+      firestore
+        .collection('Chats')
+        .where('Owners', 'array-contains-any', [userId])
+        .onSnapshot((chats) => {
+          const newChatSet = new Set<string>();
+          for (let index = 0; index < chats.docs.length; index++) {
+            newChatSet.add(chats.docs[index].id);
+          }
+          setChatsSet(newChatSet);
+        });
+    }
+  }, [userId]);
 
-    // if(userId){
-    //   firestore.collection('users').doc(userId).get()
-    //   .then((value)=>{
-    //     console.log(value.data());
-    //   })
-    // }
-    
+  useEffect(() => {
+    if (userId) {
+      chatsSet.forEach((chatId) => {
+        if (!chatsMapRef.current.has(chatId)) {
+          const OnSnapshotUnsubscribe = firestore
+            .collection('Messages')
+            .where('ChatId', '==', chatId)
+            .orderBy('Date')
+            .onSnapshot((messages) => {
+              const chat = chatsMapRef.current.get(chatId);
+              if (chat !== undefined) {
+                const messagesArray = Array.from(messages.docs.values());
+                const newMessages = Array<messageInterface>(messagesArray.length);
+                for (let index = 0; index < messagesArray.length; index++) {
+                  const message = messagesArray[index].data();
+                  // обратный порядок
+                  newMessages[messagesArray.length - index - 1] = {
+                    MessageID: messagesArray[index].id,
+                    UserId: message.UserId,
+                    Text: message.Text,
+                    Date: message.Date,
+                  };
+                }
+                chat.Messages = newMessages;
+                console.log(chat);
+                // обновление состояние для перерисовки компонентов
+                setNewMessageInChatId(newMessages);
+              }
+            });
+          chatsMapRef.current.set(chatId, {
+            Messages: [],
+            OnSnapshotUnsubscribe,
+          });
+        }
+      });
+    }
+  }, [userId, chatsSet, chatsMapRef]);
 
-    // firestore.collection("test").add({
-    //   first: "Ada",
-    //   last: "Lovelace",
-    //   born: 1815,
-    // })
-    // .then(function(docRef) {
-    //     console.log("Document written with ID: ", docRef.id);
-    // })
-    // .catch(function(error) {
-    //     console.error("Error adding document: ", error);
-    // });
-
-    // if(userId){
-    //   firestore.collection("users").doc(userId).set({
-    //     first: "Ada",
-    //     last: "Lovelace",
-    //     born: 1815,
-    //   })
-    // }
-    
-    // if(userId){
-    //   firestore.collection("test").doc('qwe').set({
-    //     first: "Ada12",
-    //     last: "Lovelace",
-    //     born: 1815,
-    //     userId: userId,
-    //   })
-    // }
-    
-
-    // if(auth.currentUser){
-    //   firestore.collection("test").add({
-    //     first: "Ada",
-    //     last: "Lovelace",
-    //     born: 1815,
-    //     userId: auth.currentUser.uid
-    //   })
-    //   .then(function(docRef) {
-    //       console.log("Document written with ID: ", docRef.id);
-    //   })
-    //   .catch(function(error) {
-    //       console.error("Error adding document: ", error);
-    //   });
-    // }
-
-
-    // firestore.collection("test").where("first", "!=", '').get()
-    // .then((querySnapshot) => {
-    //     querySnapshot.forEach(function(doc) {
-    //         // doc.data() is never undefined for query doc snapshots
-    //         console.log(doc.id, " => ", doc.data());
-    //     });
-    // })
-    // .catch(function(error) {
-    //     console.log("Error getting documents: ", error);
-    // });
-
-
-    // firestore.collection("test")
-    // .onSnapshot((collection) => {
-    //   collection.forEach((doc) => {
-    //       // doc.data() is never undefined for query doc snapshots
-    //       console.log(doc.id, " => ", doc.data());
-    //   });
-    // });
-
-    
-
-  }, [userId])
-  
-  
+  useEffect(() => {
+    if (selectedChatId) {
+      const chat = chatsMapRef.current.get(selectedChatId);
+      if (chat) {
+        setCurrentChat(chat);
+      }
+    } else {
+      setCurrentChat(null);
+    }
+  }, [selectedChatId]);
 
   const resetSelectedChatId = () => {
     setSelectedChatId(null);
   };
+
+  if (!userId) {
+    return <div>загрузка</div>;
+  }
 
   return (
     <div
@@ -150,22 +134,32 @@ function App() {
       })}>
       {mobileMod ? (
         !selectedChatId ? (
-          <ChatList userId={userId} setSelectedChatId={setSelectedChatId} />
+          <ChatList
+            userId={userId}
+            chatsSet={chatsSet}
+            setSelectedChatId={setSelectedChatId}
+          />
         ) : (
           <Chat
             mobileMod={mobileMod}
             userId={userId}
             selectedChatId={selectedChatId}
+            currrentChat={currrentChat}
             resetSelectedChatId={resetSelectedChatId}
           />
         )
       ) : (
         <>
-          <ChatList userId={userId} setSelectedChatId={setSelectedChatId} />
+          <ChatList
+            userId={userId}
+            chatsSet={chatsSet}
+            setSelectedChatId={setSelectedChatId}
+          />
           <Chat
             mobileMod={mobileMod}
             userId={userId}
             selectedChatId={selectedChatId}
+            currrentChat={currrentChat}
             resetSelectedChatId={resetSelectedChatId}
           />
         </>
