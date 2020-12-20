@@ -7,7 +7,7 @@ name: Deploy to Firebase Hosting on merge
     branches:
       - main
 env:
-  DEPLOY_PATH: build
+  DEPLOY_PATH: public
   # В теории можно собрать не только Vue-приложение, так как принцип сборки мало где отличается
   BUILD_SCRIPT: npm run build
   BUILD_SCRIPT_OUTPUT: dist
