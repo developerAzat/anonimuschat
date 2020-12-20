@@ -6,6 +6,12 @@ name: Deploy to Firebase Hosting on merge
   push:
     branches:
       - main
+env:
+  DEPLOY_PATH: build
+  # В теории можно собрать не только Vue-приложение, так как принцип сборки мало где отличается
+  BUILD_SCRIPT: npm run build
+  BUILD_SCRIPT_OUTPUT: dist
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
