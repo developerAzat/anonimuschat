@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import cn from 'classnames';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import TextField from '@material-ui/core/TextField';
@@ -35,10 +35,13 @@ function Chat({
   resetSelectedChatId,
 }: props) {
   const [newMessageText, setNewMessageText] = useState('');
+  const messagesRef = useRef<React.ElementRef<'div'> | null>(null);
 
-  if (!currrentChat) {
-    return <div className={styles.empty}>Выберите чат слева или создайте новый</div>;
-  }
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = Infinity;
+    }
+  }, [currrentChat?.Messages, messagesRef]);
 
   const sendMessage = () => {
     firestore.collection('Messages').add({
@@ -50,8 +53,12 @@ function Chat({
     setNewMessageText('');
   };
 
+  if (!currrentChat) {
+    return <div className={styles.empty}>Выберите чат слева или создайте новый</div>;
+  }
+
   return (
-    <div className={cn(styles.main, { [styles.mainMob]: mobileMod })}>
+    <div className={cn(styles.main)}>
       <div className={styles.head}>
         {mobileMod ? (
           <ArrowBackIcon
@@ -61,34 +68,32 @@ function Chat({
         ) : null}
         <div className={styles.chatName}>{selectedChatId}</div>
       </div>
-      <div className={styles.messages}>
-        <div className={styles.messagesList}>
-          {currrentChat.Messages.map((message) => {
-            return (
-              <div
-                className={styles.message}
-                key={message.MessageID}
-                style={{
-                  flexDirection: message.UserId === userId ? 'row-reverse' : 'row',
-                }}>
-                {message.Text}
-              </div>
-            );
-          })}
-        </div>
-        <div className={styles.inputWrapper}>
-          <TextField
-            value={newMessageText}
-            onChange={(event) => setNewMessageText(event.target.value)}
-            multiline
-            variant='outlined'
-            rowsMax={4}
-            classes={{ root: styles.input }}
-          />
-          <IconButton onClick={sendMessage}>
-            <SendIcon style={{ width: 28, height: 28 }} />
-          </IconButton>
-        </div>
+      <div className={styles.messages} ref={messagesRef}>
+        {currrentChat.Messages.map((message, index) => {
+          return (
+            <div
+              className={styles.message}
+              key={message.MessageID}
+              style={{
+                flexDirection: message.UserId === userId ? 'row-reverse' : 'row',
+              }}>
+              {message.Text}
+            </div>
+          );
+        })}
+      </div>
+      <div className={styles.inputWrapper}>
+        <TextField
+          value={newMessageText}
+          onChange={(event) => setNewMessageText(event.target.value)}
+          multiline
+          variant='outlined'
+          rowsMax={4}
+          classes={{ root: styles.input }}
+        />
+        <IconButton onClick={sendMessage}>
+          <SendIcon style={{ width: 28, height: 28 }} />
+        </IconButton>
       </div>
     </div>
   );

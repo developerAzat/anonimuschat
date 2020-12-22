@@ -104,7 +104,6 @@ function App() {
                   };
                 }
                 chat.Messages = newMessages;
-                console.log(chat);
                 // обновление состояние для перерисовки компонентов
                 setNewMessageInChatId(newMessages);
               }
