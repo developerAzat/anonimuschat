@@ -19,6 +19,14 @@ interface props {
   resetSelectedChatId: Function;
 }
 
+/**
+ * Компонет отрисовывающий чат
+ * @param mobileMod описывает размер компонента
+ * @param userId id пользователя
+ * @param selectedChatId id выбранного чата
+ * @param currrentChat выбранный чат
+ * @param resetSelectedChatId функция для сброса выбраного чата
+ */
 function Chat({
   mobileMod,
   userId,

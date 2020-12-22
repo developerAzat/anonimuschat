@@ -14,6 +14,12 @@ interface props {
   setSelectedChatId: Function;
 }
 
+/**
+ * Компонент отрисовывающий список чатов
+ * @param userId id пользователя
+ * @param chatsSet множество чатов
+ * @param setSelectedChatId функция для выбора чата
+ */
 function ChatList({ userId, chatsSet, setSelectedChatId }: props) {
   const chats = Array.from(chatsSet);
 

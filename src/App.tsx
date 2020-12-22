@@ -8,18 +8,27 @@ import styles from './App.module.scss';
 
 import { auth, firestore } from './firebase';
 
+/** Описание сообщения в чате */
 export interface messageInterface {
+  /** id сообщения */
   MessageID: string;
+  /** id пользователя, который отправил сообщение*/
   UserId: string;
+  /** текст сообщения */
   Text: string;
+  /** дата отправки, в милисекундах */
   Date: number;
 }
 
+/** Описание чата */
 export interface chatInterface {
+  /** массив сообщений реализующих messageInterface */
   Messages: Array<messageInterface>;
+  /** функция, при вызове которой прекратится вызов callback при обновлении данных в firebase */
   OnSnapshotUnsubscribe: Function;
 }
 
+/** Корневой компонент приложения */
 function App() {
   const [userId, setUserId] = useState<string | null>(null);
   const [chatsSet, setChatsSet] = useState(new Set<string>());
@@ -54,6 +63,7 @@ function App() {
     });
   }, []);
 
+  // подписка на обновление списка чатов
   useEffect(() => {
     if (userId) {
       firestore
@@ -69,6 +79,7 @@ function App() {
     }
   }, [userId]);
 
+  // подписка на обновление сообщений в чатах
   useEffect(() => {
     if (userId) {
       chatsSet.forEach((chatId) => {
@@ -123,7 +134,7 @@ function App() {
   };
 
   if (!userId) {
-    return <div>загрузка</div>;
+    return <div>загрузка...</div>;
   }
 
   return (
