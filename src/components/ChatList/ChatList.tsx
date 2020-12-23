@@ -15,12 +15,10 @@ interface props {
 }
 
 /**
- * 
- * Список чатов
- * @param uesrId идентификатор пользователя
+ * Компонент отрисовывающий список чатов
+ * @param userId id пользователя
  * @param chatsSet множество чатов
- * @param setSelectedChatId айди открытого чата
- * @returns html-код
+ * @param setSelectedChatId функция для выбора чата
  */
 function ChatList({ userId, chatsSet, setSelectedChatId }: props) {
   const chats = Array.from(chatsSet);
